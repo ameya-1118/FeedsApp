@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import Login from "./pages/Login";
@@ -62,15 +62,15 @@ function Home() {
           first impression.
         </p>
         <div className="home-actions">
-          <a href="/login">
+          <Link to="/login">
             <button className="btn">Login</button>
-          </a>
+          </Link>
 
-          <a href="/register">
+          <Link to="/register">
             <button className="btn btn-secondary">
               Register
             </button>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
