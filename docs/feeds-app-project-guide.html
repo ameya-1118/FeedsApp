@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedsss Project Guide</title>
+  <style>
+    :root {
+      --bg: #f6f1eb;
+      --surface: #fffaf5;
+      --ink: #1c1815;
+      --muted: #5c534b;
+      --accent: #c5542b;
+      --accent-soft: #f2d5c6;
+      --line: #d7c8bc;
+      --good: #1f7a5b;
+      --warn: #975d14;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f4ede5 0%, #fbf8f4 100%);
+      line-height: 1.55;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 44px 56px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #fffaf5, #f4e0d4);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 28px 30px;
+      margin-bottom: 24px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: 38px;
+      color: var(--accent);
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-top: 30px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent-soft);
+    }
+
+    h3 {
+      font-size: 18px;
+      margin-top: 20px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    .lead {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card {
+      background: rgba(255, 250, 245, 0.88);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-top: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    ul, ol {
+      margin: 10px 0 10px 22px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    code {
+      background: #f4e7dc;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      margin: 14px 0;
+      padding: 16px;
+      border-radius: 14px;
+      background: #201c18;
+      color: #fff6ee;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+
+    .note {
+      border-left: 5px solid var(--warn);
+      background: #fff7e9;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 14px 0;
+    }
+
+    .good {
+      border-left-color: var(--good);
+      background: #eef9f3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th, td {
+      text-align: left;
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f6e7db;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .page {
+        padding: 24px 28px 40px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        padding: 22px 18px 36px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <h1>Feedsss Project Guide</h1>
+      <p class="lead">
+        This document explains the Feedsss project end to end: what it does,
+        which technologies it uses, how the frontend and backend are organized,
+        how each service works, and what the current implementation gets right
+        and still needs improvement.
+      </p>
+      <div class="meta">
+        <span class="pill">Frontend: React + Vite</span>
+        <span class="pill">Backend: Express + MongoDB</span>
+        <span class="pill">Media: Cloudinary</span>
+        <span class="pill">Auth: JWT + OTP Email Flow</span>
+      </div>
+    </section>
+
+    <h2>1. What This Project Is</h2>
+    <p>
+      Feedsss is a social feed application with moderated posting. Regular users
+      can register, verify their email, log in, create a post with an image,
+      browse approved posts, like posts, and view their own profile. Admin users
+      can review pending posts and decide whether to approve or reject them.
+    </p>
+    <p>
+      The app follows a common full-stack split:
+    </p>
+    <ul>
+      <li><code>frontend/</code> contains the user interface and client-side logic.</li>
+      <li><code>server/</code> contains the API, database models, auth logic, email flow, and upload handling.</li>
+    </ul>
+
+    <h2>2. High-Level Feature Set</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>User Features</h3>
+        <ul>
+          <li>Register with username, email, phone, password, and role.</li>
+          <li>Verify account using an email OTP.</li>
+          <li>Log in and persist session info in the browser.</li>
+          <li>Request a reset-password OTP and set a new password.</li>
+          <li>Create image posts with captions.</li>
+          <li>See approved posts in the main feed.</li>
+          <li>Like and unlike posts.</li>
+          <li>View a profile page with personal posts and approval status.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Admin Features</h3>
+        <ul>
+          <li>Open an admin dashboard.</li>
+          <li>Fetch posts that are still pending moderation.</li>
+          <li>Approve a post so it becomes visible in the public feed.</li>
+          <li>Reject and delete a post that should not go live.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>3. Tech Stack</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Technology</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Frontend</td>
+          <td>React 19, Vite</td>
+          <td>Component-based UI and fast dev/build tooling.</td>
+        </tr>
+        <tr>
+          <td>Routing</td>
+          <td>react-router-dom</td>
+          <td>Client-side page navigation.</td>
+        </tr>
+        <tr>
+          <td>HTTP Client</td>
+          <td>Axios</td>
+          <td>Calls backend APIs with shared config.</td>
+        </tr>
+        <tr>
+          <td>Notifications</td>
+          <td>react-hot-toast</td>
+          <td>User feedback for success and error messages.</td>
+        </tr>
+        <tr>
+          <td>Styling</td>
+          <td>Tailwind CSS v4 + custom CSS</td>
+          <td>Visual theme, layouts, responsiveness, and components.</td>
+        </tr>
+        <tr>
+          <td>Backend</td>
+          <td>Node.js, Express 5</td>
+          <td>REST API and request handling.</td>
+        </tr>
+        <tr>
+          <td>Database</td>
+          <td>MongoDB with Mongoose</td>
+          <td>Stores users and posts.</td>
+        </tr>
+        <tr>
+          <td>Authentication</td>
+          <td>JWT, cookies, bcryptjs</td>
+          <td>Login sessions and password hashing.</td>
+        </tr>
+        <tr>
+          <td>Email</td>
+          <td>Nodemailer</td>
+          <td>Sends OTP emails for registration and password reset.</td>
+        </tr>
+        <tr>
+          <td>Uploads</td>
+          <td>Multer, Cloudinary, multer-storage-cloudinary</td>
+          <td>Uploads images and stores hosted URLs.</td>
+        </tr>
+        <tr>
+          <td>Security Middleware</td>
+          <td>Helmet, CORS, cookie-parser</td>
+          <td>Headers, cross-origin config, and cookie parsing.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Project Structure</h2>
+    <pre>Feeds App/
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   ├── index.css
+│   │   ├── pages/
+│   │   └── services/
+│   └── package.json
+└── server/
+    ├── config/
+    ├── controllers/
+    ├── middleware/
+    ├── models/
+    ├── routes/
+    ├── server.js
+    └── package.json</pre>
+
+    <h2>5. Frontend Architecture</h2>
+    <p>
+      The frontend is a single-page React application. Routing is configured in
+      <code>App.jsx</code>, where each URL path maps directly to a page
+      component.
+    </p>
+    <div class="card">
+      <h3>Frontend Pages</h3>
+      <ul>
+        <li><code>/</code> Home landing page with login/register actions.</li>
+        <li><code>/login</code> User login form.</li>
+        <li><code>/register</code> Registration form.</li>
+        <li><code>/verify-otp</code> OTP screen for account verification.</li>
+        <li><code>/forgot-password</code> Request reset OTP.</li>
+        <li><code>/reset-password</code> Verify reset OTP and change password.</li>
+        <li><code>/feed</code> Main approved-post feed.</li>
+        <li><code>/profile</code> User profile and post history.</li>
+        <li><code>/create-post</code> Caption + image upload form.</li>
+        <li><code>/admin</code> Moderation dashboard.</li>
+      </ul>
+    </div>
+
+    <h3>Frontend Service Layer</h3>
+    <p>
+      The UI does not call raw URLs everywhere. Instead, it uses a small service
+      layer:
+    </p>
+    <ul>
+      <li><code>services/api.js</code> creates a shared Axios instance.</li>
+      <li><code>services/authService.js</code> wraps auth-related API calls.</li>
+      <li><code>services/postService.js</code> wraps post-related API calls.</li>
+    </ul>
+    <p>
+      This keeps page components cleaner and makes API behavior more consistent.
+    </p>
+
+    <h3>Frontend State Handling</h3>
+    <p>
+      State is handled locally with React hooks like <code>useState</code> and
+      <code>useEffect</code>. There is no global store such as Redux or Zustand.
+      Current user data is read from and written to <code>localStorage</code>.
+    </p>
+
+    <div class="note">
+      The app uses a simple local-state approach, which is easy to understand for
+      smaller projects but can become harder to manage as auth rules, permissions,
+      and cross-page state grow more complex.
+    </div>
+
+    <h2>6. Backend Architecture</h2>
+    <p>
+      The backend is an Express API server started from <code>server.js</code>.
+      It loads environment variables, connects to MongoDB, enables middleware,
+      and mounts two route groups:
+    </p>
+    <ul>
+      <li><code>/api/auth</code> for registration, login, OTP, password reset, and logout.</li>
+      <li><code>/api/posts</code> for creating, reading, moderating, liking, and deleting posts.</li>
+    </ul>
+
+    <h3>Backend Layers</h3>
+    <ul>
+      <li><code>routes/</code> defines endpoint URLs.</li>
+      <li><code>controllers/</code> contains request logic.</li>
+      <li><code>models/</code> defines Mongoose schemas.</li>
+      <li><code>config/</code> initializes MongoDB and Cloudinary.</li>
+      <li><code>middleware/</code> provides auth and upload utilities.</li>
+    </ul>
+
+    <h2>7. Database Models</h2>
+    <div class="card">
+      <h3>User Model</h3>
+      <ul>
+        <li><code>username</code>: display name.</li>
+        <li><code>email</code>: unique identifier for login.</li>
+        <li><code>phone</code>: stored as plain string.</li>
+        <li><code>password</code>: hashed password string.</li>
+        <li><code>avatar</code>: avatar URL with a default DiceBear fallback.</li>
+        <li><code>role</code>: either <code>admin</code> or <code>user</code>.</li>
+        <li><code>isVerified</code>: whether email verification is complete.</li>
+        <li><code>otp</code>, <code>otpPurpose</code>, <code>otpExpires</code>: support OTP flows.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Post Model</h3>
+      <ul>
+        <li><code>content</code>: caption text.</li>
+        <li><code>image</code>: image URL returned from Cloudinary upload.</li>
+        <li><code>userId</code>: MongoDB reference to the owning user.</li>
+        <li><code>username</code> and <code>avatar</code>: copied onto the post for easy display.</li>
+        <li><code>likes</code>: array of user IDs that liked the post.</li>
+        <li><code>approved</code>: moderation status, defaulting to <code>false</code>.</li>
+      </ul>
+    </div>
+
+    <h2>8. Authentication and Authorization</h2>
+    <h3>Registration Flow</h3>
+    <ol>
+      <li>User submits registration form.</li>
+      <li>Backend checks if the email already exists.</li>
+      <li>Password is hashed with bcrypt.</li>
+      <li>A 6-digit OTP is generated.</li>
+      <li>User is saved with <code>isVerified = false</code>.</li>
+      <li>OTP is emailed to the user.</li>
+      <li>Frontend redirects to the OTP verification screen.</li>
+    </ol>
+
+    <h3>Email Verification Flow</h3>
+    <ol>
+      <li>User enters the OTP.</li>
+      <li>Backend fetches the user by email.</li>
+      <li>OTP and expiration time are checked.</li>
+      <li>If valid, <code>isVerified</code> becomes <code>true</code>.</li>
+      <li>OTP fields are cleared from the database.</li>
+    </ol>
+
+    <h3>Login Flow</h3>
+    <ol>
+      <li>User submits email and password.</li>
+      <li>Backend compares the password against the bcrypt hash.</li>
+      <li>Backend refuses login if the account is still unverified.</li>
+      <li>JWT is created with user ID and role.</li>
+      <li>JWT is returned and also set as an HTTP-only cookie.</li>
+      <li>Frontend saves user data and token in local storage.</li>
+    </ol>
+
+    <h3>Password Reset Flow</h3>
+    <ol>
+      <li>User enters email on the forgot-password page.</li>
+      <li>Backend generates and emails a reset OTP.</li>
+      <li>User enters OTP and new password on the reset page.</li>
+      <li>Backend verifies OTP.</li>
+      <li>Backend hashes the new password and updates the account.</li>
+      <li>OTP fields are cleared again.</li>
+    </ol>
+
+    <div class="note">
+      There is an auth middleware file that can verify JWT cookies and restrict
+      admin-only access, but it is not currently applied to the post routes. That
+      means the backend is not really enforcing access control yet.
+    </div>
+
+    <h2>9. Post and Media Handling</h2>
+    <h3>Post Creation</h3>
+    <p>
+      Users create posts from the frontend with a caption and one image file.
+      The browser builds a <code>FormData</code> request, and the backend uses
+      Multer with a Cloudinary storage adapter to upload the image directly.
+      After upload, the post is inserted into MongoDB with the hosted image URL.
+    </p>
+    <p>
+      A new post is not visible in the public feed immediately because its
+      <code>approved</code> field starts as <code>false</code>.
+    </p>
+
+    <h3>Feed Retrieval</h3>
+    <p>
+      The public feed endpoint returns only posts where
+      <code>approved: true</code>. Posts are sorted newest first and use
+      Mongoose <code>populate()</code> for related user and likes data.
+    </p>
+
+    <h3>Likes</h3>
+    <p>
+      Likes are implemented as a toggle. If the user ID is already in the post's
+      <code>likes</code> array, it is removed. Otherwise it is added. The server
+      responds with the new count and whether the current user has liked the post.
+    </p>
+
+    <h2>10. Admin Moderation Flow</h2>
+    <ol>
+      <li>Admin page fetches posts with <code>approved: false</code>.</li>
+      <li>Admin can approve a post, which updates <code>approved</code> to <code>true</code>.</li>
+      <li>Admin can reject a post, which deletes it from the database.</li>
+      <li>Approved posts then appear in the public feed.</li>
+    </ol>
+
+    <div class="good note">
+      Moderation is a strong product idea here because it creates a cleaner feed
+      and gives the project a more distinct workflow than a simple post-anything
+      social app.
+    </div>
+
+    <h2>11. UI and Design System</h2>
+    <p>
+      The frontend uses a custom visual theme instead of default Tailwind-only
+      utility styling. The design language includes:
+    </p>
+    <ul>
+      <li>Gradient backgrounds and glassmorphism-style cards.</li>
+      <li>Warm pink, orange, and violet accent colors.</li>
+      <li>Responsive top bars, cards, and mobile-friendly layouts.</li>
+      <li>Light motion and animated floating background orbs.</li>
+      <li>Reusable classes for buttons, inputs, post cards, and profile cards.</li>
+    </ul>
+    <p>
+      This gives the app a more polished look than a bare CRUD project and makes
+      it easier to explain visually in a portfolio setting.
+    </p>
+
+    <h2>12. Service-by-Service Explanation</h2>
+    <div class="card">
+      <h3>API Service</h3>
+      <p>
+        The shared Axios instance sets the API base URL from
+        <code>VITE_API_URL</code> and enables <code>withCredentials</code> so
+        cookies can travel with requests.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Auth Service</h3>
+      <p>
+        The auth service groups all authentication-related requests:
+        register, verify OTP, login, forgot password, verify reset OTP,
+        reset password, and logout.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Post Service</h3>
+      <p>
+        The post service groups post retrieval, creation, pending moderation,
+        approval, rejection, liking, user-profile posts, and deletion.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Email Service Behavior</h3>
+      <p>
+        Email sending is handled directly inside the auth controller via a
+        Nodemailer transporter configured for Gmail SMTP. Both registration and
+        password reset reuse the same OTP generation approach.
+      </p>
+    </div>
+    <div class="card">
+      <h3>Upload Service Behavior</h3>
+      <p>
+        Multer delegates file storage to Cloudinary, so uploaded files do not
+        remain on the local server filesystem. Instead, Cloudinary hosts them and
+        returns a URL used by the app.
+      </p>
+    </div>
+
+    <h2>13. Request Flow Examples</h2>
+    <h3>A. Register to Verified Account</h3>
+    <pre>User fills Register form
+-> frontend authService.register()
+-> POST /api/auth/register
+-> authController.register()
+-> User saved with hashed password and OTP
+-> OTP email sent
+-> frontend redirects to verify page
+-> frontend authService.verifyOTP()
+-> POST /api/auth/verify-otp
+-> authController.verifyOTP()
+-> user.isVerified = true</pre>
+
+    <h3>B. Create a Post</h3>
+    <pre>User fills caption and selects image
+-> frontend builds FormData
+-> postService.createPost()
+-> POST /api/posts/create
+-> multer upload middleware
+-> Cloudinary upload
+-> postController.createPost()
+-> Post saved with approved = false
+-> admin must approve before it appears in feed</pre>
+
+    <h3>C. Like a Post</h3>
+    <pre>User taps like
+-> postService.likePost(postId, userId)
+-> POST /api/posts/like
+-> postController.likePost()
+-> likes array toggled
+-> server returns liked + count
+-> frontend updates UI state locally</pre>
+
+    <h2>14. Environment Variables Needed</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Used For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>MONGO_URI</code></td>
+          <td>MongoDB connection string.</td>
+        </tr>
+        <tr>
+          <td><code>JWT_SECRET</code></td>
+          <td>Signing JWTs.</td>
+        </tr>
+        <tr>
+          <td><code>CLIENT_URL</code></td>
+          <td>CORS origin for the frontend.</td>
+        </tr>
+        <tr>
+          <td><code>EMAIL_USER</code></td>
+          <td>SMTP username for Nodemailer.</td>
+        </tr>
+        <tr>
+          <td><code>EMAIL_PASS</code></td>
+          <td>SMTP password or app password.</td>
+        </tr>
+        <tr>
+          <td><code>CLOUDINARY_CLOUD_NAME</code></td>
+          <td>Cloudinary account configuration.</td>
+        </tr>
+        <tr>
+          <td><code>CLOUDINARY_API_KEY</code></td>
+          <td>Cloudinary API access.</td>
+        </tr>
+        <tr>
+          <td><code>CLOUDINARY_API_SECRET</code></td>
+          <td>Cloudinary API secret.</td>
+        </tr>
+        <tr>
+          <td><code>VITE_API_URL</code></td>
+          <td>Frontend base URL for API requests.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>15. Strengths of the Current Project</h2>
+    <ul>
+      <li>Clear separation between frontend and backend.</li>
+      <li>Nice portfolio-friendly feature mix: auth, OTP, uploads, moderation, profile, likes.</li>
+      <li>Cloudinary integration avoids local file-storage complexity.</li>
+      <li>MongoDB schemas are small and easy to understand.</li>
+      <li>UI is more polished than a default starter app.</li>
+      <li>Service wrappers on the frontend keep code readable.</li>
+    </ul>
+
+    <h2>16. Weaknesses and Risks in the Current Implementation</h2>
+    <div class="note">
+      This section matters if you want to explain the project professionally in
+      an interview or present it as a serious production candidate.
+    </div>
+    <ul>
+      <li>Authorization is not enforced on sensitive post routes.</li>
+      <li>Anyone can choose the <code>admin</code> role from the register form.</li>
+      <li>Login stores JWT in both an HTTP-only cookie and local storage.</li>
+      <li>Some logout flows only clear local storage and do not always call the backend logout endpoint.</li>
+      <li>Post creation depends on user info sent from the client instead of deriving it from authenticated server state.</li>
+      <li>There is no validation library for request bodies.</li>
+      <li>There are no automated tests yet.</li>
+      <li>Some route actions like approve, reject, and delete should be protected with auth middleware.</li>
+    </ul>
+
+    <h2>17. Best Improvements to Make Next</h2>
+    <ol>
+      <li>Protect post routes with <code>protect</code> and <code>adminOnly</code> middleware.</li>
+      <li>Remove role selection from public registration and assign admin roles manually.</li>
+      <li>Use server-authenticated user identity instead of trusting <code>userId</code>, <code>username</code>, and <code>avatar</code> from the client.</li>
+      <li>Add validation for auth and post payloads.</li>
+      <li>Use secure cookie settings for production.</li>
+      <li>Choose one auth persistence strategy instead of both cookie and local token storage.</li>
+      <li>Add tests for auth, OTP flow, and moderation logic.</li>
+      <li>Introduce route guards on the frontend for admin-only and logged-in pages.</li>
+    </ol>
+
+    <h2>18. How to Explain This Project in an Interview</h2>
+    <p>
+      A good short explanation would be:
+    </p>
+    <div class="card">
+      <p>
+        “Feedsss is a full-stack moderated social feed app that I built with
+        React, Vite, Express, and MongoDB. Users can register, verify their email
+        with OTP, log in, upload image posts through Cloudinary, like approved
+        posts, and manage their own profile. Admin users can moderate pending
+        posts before they go live. The frontend uses a service layer around Axios,
+        and the backend is organized into routes, controllers, models, and
+        middleware.”
+      </p>
+    </div>
+
+    <h2>19. Final Summary</h2>
+    <p>
+      Feedsss is a clean educational full-stack project with real product ideas:
+      account verification, password recovery, image uploads, moderation, likes,
+      and profile pages. Architecturally it is easy to follow, which makes it
+      great for learning and presenting. Its biggest gap is backend security
+      enforcement, not overall structure. If you tighten authorization and request
+      validation, it becomes a much stronger project technically.
+    </p>
+  </div>
+</body>
+</html>
