@@ -76,12 +76,11 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: "Email already exists" });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+   const hash = await bcrypt.hash(password, 10);
 
-    const otp = generateOTP();
-    console.log("Sending OTP to:", normalizedEmail);
-    
 const otp = generateOTP();
+
+console.log("Sending OTP to:", normalizedEmail);
 
 await transporter.sendMail({
   from: process.env.BREVO_EMAIL,
