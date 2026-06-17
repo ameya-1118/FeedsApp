@@ -10,23 +10,43 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   console.error("EMAIL_USER or EMAIL_PASS is not defined in .env");
 }
 
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
+  family: 4,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
 });
-
-transporter.verify((error, success) => {
+transporter.verify((error) => {
   if (error) {
-    console.log("Mail Error:", error);
+    console.error("Mail Error:", error);
   } else {
     console.log("Mailer Ready");
   }
 });
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.log("Mail Error:", error);
+//   } else {
+//     console.log("Mailer Ready");
+//   }
+// });
 
 const cookieOptions = {
   httpOnly: true,
@@ -40,14 +60,20 @@ const generateOTP = () =>
 export const register = async (req, res) => {
   try {
     const { username, email, phone, password, role } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+    const normalizedUsername = username?.trim();
 
-    const existingUsername = await User.findOne({ username: username?.trim() });
+    if (!normalizedUsername || !normalizedEmail || !password) {
+      return res.status(400).json({ msg: "Username, email, and password are required" });
+    }
+
+    const existingUsername = await User.findOne({ username: normalizedUsername });
 
     if (existingUsername) {
       return res.status(400).json({ msg: "Username already taken" });
     }
 
-    const exists = await User.findOne({ email });
+    const exists = await User.findOne({ email: normalizedEmail });
 
     if (exists) {
       return res.status(400).json({ msg: "Email already exists" });
@@ -56,23 +82,25 @@ export const register = async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     const otp = generateOTP();
+    console.log("Sending OTP to:", normalizedEmail);
+    const info = await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: normalizedEmail,
+  subject: "Email Verification OTP",
+  text: `Your OTP is ${otp}`,
+});
+
+console.log("Email sent:", info.messageId);
 
     await User.create({
-      username: username.trim(),
-      email,
+      username: normalizedUsername,
+      email: normalizedEmail,
       phone,
       password: hash,
       role,
       otp,
       otpPurpose: "register",
       otpExpires: new Date(Date.now() + 1000 * 60 * 15),
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Email Verification OTP",
-      text: `Your OTP is ${otp}`,
     });
 
     res.json({ msg: "Registered successfully. OTP sent to email." });
@@ -91,7 +119,12 @@ export const register = async (req, res) => {
       return res.status(400).json({ msg: message });
     }
 
-    res.status(500).json({ msg: "Server Error", error: error.message });
+    const isMailError = Boolean(error?.responseCode || error?.code);
+    const message = isMailError
+      ? "Could not send OTP email. Please check email settings and try again."
+      : "Server Error";
+
+    res.status(500).json({ msg: message, error: error.message });
   }
 };
 
@@ -143,7 +176,12 @@ export const verifyOTP = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and password are required" });
+    }
 
     const user = await User.findOne({ email });
 
@@ -186,7 +224,11 @@ export const login = async (req, res) => {
 
 export const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ msg: "Email is required" });
+    }
 
     const user = await User.findOne({ email });
 
@@ -260,7 +302,12 @@ export const verifyResetOTP = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const password = req.body.password;
+    const email = req.body.email?.trim().toLowerCase();
+
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email and password are required" });
+    }
 
     const user = await User.findOne({ email });
 
