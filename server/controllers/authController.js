@@ -6,31 +6,21 @@ import nodemailer from "nodemailer";
 
 dotenv.config();
 
-if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
-  console.error("BREVO_EMAIL or BREVO_SMTP_KEY is not defined");
-}
 
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 587,
-//   secure: false,
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-// });
-console.log("BREVO_EMAIL:", process.env.BREVO_EMAIL);
-console.log("BREVO_SMTP_KEY exists:", !!process.env.BREVO_SMTP_KEY);
 const transporter = nodemailer.createTransport({
-  
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
-    user: process.env.BREVO_EMAIL,
-    pass: process.env.BREVO_SMTP_KEY,
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
-  
+});
+
+transporter.verify((error) => {
+  if (error) {
+    console.error("Mail Error:", error);
+  } else {
+    console.log("Mailer Ready");
+  }
 });
 
 transporter.verify((error) => {
@@ -81,28 +71,26 @@ export const register = async (req, res) => {
 
    const hash = await bcrypt.hash(password, 10);
 
+
 const otp = generateOTP();
 
-console.log("Sending OTP to:", normalizedEmail);
-
 await transporter.sendMail({
-  from: process.env.BREVO_EMAIL,
+  from: process.env.EMAIL_USER,
   to: normalizedEmail,
   subject: "Email Verification OTP",
   text: `Your OTP is ${otp}`,
 });
 
-console.log("OTP email sent");
-    await User.create({
-      username: normalizedUsername,
-      email: normalizedEmail,
-      phone,
-      password: hash,
-      role,
-      otp,
-      otpPurpose: "register",
-      otpExpires: new Date(Date.now() + 1000 * 60 * 15),
-    });
+await User.create({
+  username: normalizedUsername,
+  email: normalizedEmail,
+  phone,
+  password: hash,
+  role,
+  otp,
+  otpPurpose: "register",
+  otpExpires: new Date(Date.now() + 1000 * 60 * 15),
+});
 
     res.json({ msg: "Registered successfully. OTP sent to email." });
 
