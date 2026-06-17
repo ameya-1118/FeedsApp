@@ -2,34 +2,31 @@ import dotenv from "dotenv";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+// import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 dotenv.config();
 
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
-transporter.verify((error) => {
-  if (error) {
-    console.error("Mail Error:", error);
-  } else {
-    console.log("Mailer Ready");
-  }
-});
+// transporter.verify((error) => {
+//   if (error) {
+//     console.error("Mail Error:", error);
+//   } else {
+//     console.log("Mailer Ready");
+//   }
+// });
 
-transporter.verify((error) => {
-  if (error) {
-    console.error("Mail Error:", error);
-  } else {
-    console.log("Mailer Ready");
-  }
-});
+
 // transporter.verify((error, success) => {
 //   if (error) {
 //     console.log("Mail Error:", error);
@@ -74,8 +71,8 @@ export const register = async (req, res) => {
 
 const otp = generateOTP();
 
-await transporter.sendMail({
-  from: process.env.EMAIL_USER,
+await resend.emails.send({
+  from: "ameya1551@gmail.com",
   to: normalizedEmail,
   subject: "Email Verification OTP",
   text: `Your OTP is ${otp}`,
@@ -233,12 +230,12 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Reset Password OTP",
-      text: `Your OTP is ${otp}`,
-    });
+    await resend.emails.send({
+  from: "ameya1551@gmail.com",
+  to: email,
+  subject: "Reset Password OTP",
+  text: `Your OTP is ${otp}`,
+});
 
     res.json({ msg: "OTP sent to email" });
 
