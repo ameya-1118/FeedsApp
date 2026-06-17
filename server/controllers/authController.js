@@ -81,7 +81,16 @@ export const register = async (req, res) => {
     const otp = generateOTP();
     console.log("Sending OTP to:", normalizedEmail);
     
+const otp = generateOTP();
 
+await transporter.sendMail({
+  from: process.env.BREVO_EMAIL,
+  to: normalizedEmail,
+  subject: "Email Verification OTP",
+  text: `Your OTP is ${otp}`,
+});
+
+console.log("OTP email sent");
     await User.create({
       username: normalizedUsername,
       email: normalizedEmail,
@@ -235,7 +244,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: process.env.BREVO_EMAIL,
       to: email,
       subject: "Reset Password OTP",
       text: `Your OTP is ${otp}`,
