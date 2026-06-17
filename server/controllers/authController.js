@@ -21,6 +21,8 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
 // });
 
 const transporter = nodemailer.createTransport({
+  console.log("BREVO_EMAIL:", process.env.BREVO_EMAIL);
+console.log("BREVO_SMTP_KEY exists:", !!process.env.BREVO_SMTP_KEY);
   host: "smtp-relay.brevo.com",
   port: 587,
   secure: false,
@@ -28,6 +30,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.BREVO_EMAIL,
     pass: process.env.BREVO_SMTP_KEY,
   },
+  
 });
 
 transporter.verify((error) => {
