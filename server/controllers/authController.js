@@ -6,8 +6,8 @@ import nodemailer from "nodemailer";
 
 dotenv.config();
 
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.error("EMAIL_USER or EMAIL_PASS is not defined in .env");
+if (!process.env.BREVO_EMAIL || !process.env.BREVO_SMTP_KEY) {
+  console.error("BREVO_EMAIL or BREVO_SMTP_KEY is not defined");
 }
 
 // const transporter = nodemailer.createTransport({
