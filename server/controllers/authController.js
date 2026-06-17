@@ -234,7 +234,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     await transporter.sendMail({
-      from: process.env.BREVO_EMAIL,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Reset Password OTP",
       text: `Your OTP is ${otp}`,
